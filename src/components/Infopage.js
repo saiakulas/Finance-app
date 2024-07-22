@@ -1,5 +1,3 @@
-// src/components/InfoPage.js
-
 import React, { useEffect, useState } from 'react';
 import { db } from '../config/firebase-config';
 import { collection, getDocs } from 'firebase/firestore';
@@ -54,12 +52,13 @@ const InfoPage = () => {
     <div>
       <h2>Record Details</h2>
       <p><strong>Name:</strong> {record.name}</p>
+      <p><strong>Vehicle Name:</strong> {record.vehicleName}</p> {/* Added vehicleName */}
       <p><strong>Total Amount:</strong> {record.totalamount}</p>
       <p><strong>Email:</strong> {record.email}</p>
       <p><strong>Interest Rate:</strong> {record.interestRate}%</p>
-            <p><strong>Time Period:</strong> {record.timePeriod} months</p>
-            <p><strong>Email:</strong> {record.email}</p>
-            <p><strong>Monthly EMI:</strong> {record.emi}</p> {/* Display EMI */}
+      <p><strong>Time Period:</strong> {record.timePeriod} months</p>
+      <p><strong>Monthly EMI:</strong> {record.emi}</p> {/* Display EMI */}
+      {record.imageUrl && <img src={record.imageUrl} alt={record.name} style={{ width: '200px', height: '200px' }} />} {/* Display image if available */}
     </div>
   );
 };
