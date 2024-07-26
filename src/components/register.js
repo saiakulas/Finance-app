@@ -1,97 +1,99 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import React, { useState } from "react";
-import { auth, db } from "../config/firebase-config.js";
-import { setDoc, doc } from "firebase/firestore";
-import { toast } from "react-toastify";
+import React, { useState } from 'react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../config/firebase-config.js';
+import { setDoc, doc } from 'firebase/firestore';
+import { toast } from 'react-toastify';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Register() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fname, setFname] = useState("");
-  const [lname, setLname] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fname, setFname] = useState('');
+  const [lname, setLname] = useState('');
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       const user = auth.currentUser;
-      console.log(user);
       if (user) {
-        await setDoc(doc(db, "Users", user.uid), {
+        await setDoc(doc(db, 'Users', user.uid), {
           email: user.email,
           firstName: fname,
           lastName: lname,
-          photo:""
+          photo: ''
         });
       }
-      console.log("User Registered Successfully!!");
-      toast.success("User Registered Successfully!!", {
-        position: "top-center",
+      toast.success('User Registered Successfully!!', {
+        position: 'top-center'
       });
     } catch (error) {
-      console.log(error.message);
       toast.error(error.message, {
-        position: "bottom-center",
+        position: 'bottom-center'
       });
     }
   };
 
   return (
-    <form onSubmit={handleRegister}>
-      <h3>Sign Up</h3>
+    <Container className="d-flex align-items-center justify-content-center min-vh-100">
+      <Row className="w-100">
+        <Col md={6} lg={4} className="mx-auto">
+          <div className="border p-4 rounded bg-light">
+            <h3 className="text-center mb-4">Sign Up</h3>
+            <Form onSubmit={handleRegister}>
+              <Form.Group className="mb-3" controlId="formFirstName">
+                <Form.Label>First Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="First name"
+                  onChange={(e) => setFname(e.target.value)}
+                  required
+                />
+              </Form.Group>
 
-      <div className="mb-3">
-        <label>First name</label>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="First name"
-          onChange={(e) => setFname(e.target.value)}
-          required
-        />
-      </div>
+              <Form.Group className="mb-3" controlId="formLastName">
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Last name"
+                  onChange={(e) => setLname(e.target.value)}
+                />
+              </Form.Group>
 
-      <div className="mb-3">
-        <label>Last name</label>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Last name"
-          onChange={(e) => setLname(e.target.value)}
-        />
-      </div>
+              <Form.Group className="mb-3" controlId="formEmail">
+                <Form.Label>Email address</Form.Label>
+                <Form.Control
+                  type="email"
+                  placeholder="Enter email"
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </Form.Group>
 
-      <div className="mb-3">
-        <label>Email address</label>
-        <input
-          type="email"
-          className="form-control"
-          placeholder="Enter email"
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
+              <Form.Group className="mb-3" controlId="formPassword">
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="Enter password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </Form.Group>
 
-      <div className="mb-3">
-        <label>Password</label>
-        <input
-          type="password"
-          className="form-control"
-          placeholder="Enter password"
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
+              <Button variant="primary" type="submit" className="w-100">
+                Sign Up
+              </Button>
 
-      <div className="d-grid">
-        <button type="submit" className="btn btn-primary">
-          Sign Up
-        </button>
-      </div>
-      <p className="forgot-password text-right">
-        Already registered <a href="/login">Login</a>
-      </p>
-    </form>
+              <p className="text-center mt-3">
+                Already registered? <a href="/login">Login</a>
+              </p>
+            </Form>
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
 }
+
 export default Register;

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, query, where, deleteDoc, doc, updateDoc, getDoc } from 'firebase/firestore'; // Added getDoc import
+import { collection, getDocs, addDoc, query, where, deleteDoc, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase-config.js';
 import { Link, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const RecordForm = () => {
   const [name, setName] = useState('');
@@ -10,13 +12,12 @@ const RecordForm = () => {
   const [interestRate, setInterestRate] = useState('');
   const [timePeriod, setTimePeriod] = useState('');
   const [email, setEmail] = useState('');
-  const [imageUrl, setImageUrl] = useState(''); // State to hold image URL
+  const [imageUrl, setImageUrl] = useState('');
   const [records, setRecords] = useState([]);
-  const [emi, setEMI] = useState(0); // State to hold EMI
-  const [currentRecordId, setCurrentRecordId] = useState(null); // State to hold the ID of the record being edited
+  const [emi, setEMI] = useState(0);
+  const [currentRecordId, setCurrentRecordId] = useState(null);
   const navigate = useNavigate();
 
-  // Function to fetch records from Firestore
   const fetchRecords = async () => {
     try {
       const recordsCollection = collection(db, 'records');
@@ -35,14 +36,12 @@ const RecordForm = () => {
     fetchRecords();
   }, []);
 
-  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const recordsCollection = collection(db, 'records');
 
       if (currentRecordId) {
-        // If there is a current record ID, update the existing record
         const recordRef = doc(db, 'records', currentRecordId);
         await updateDoc(recordRef, {
           name,
@@ -56,7 +55,6 @@ const RecordForm = () => {
         });
         alert('Record updated successfully!');
       } else {
-        // Otherwise, add a new record
         const q = query(recordsCollection, where('email', '==', email));
         const existingUser = await getDocs(q);
         if (!existingUser.empty) {
@@ -64,7 +62,7 @@ const RecordForm = () => {
           return;
         }
 
-        const newInstallments = Array(parseInt(timePeriod)).fill(false); // Create an array for installments
+        const newInstallments = Array(parseInt(timePeriod)).fill(false);
 
         await addDoc(recordsCollection, {
           name,
@@ -73,9 +71,9 @@ const RecordForm = () => {
           interestRate: parseFloat(interestRate),
           timePeriod: parseInt(timePeriod),
           email,
-          emi: parseFloat(emi).toFixed(2), // Store emi in Firestore with 2 decimal places
-          imageUrl, // Store imageUrl in Firestore
-          installments: newInstallments // Store installments in Firestore
+          emi: parseFloat(emi).toFixed(2),
+          imageUrl,
+          installments: newInstallments
         });
 
         alert('Record added successfully!');
@@ -87,30 +85,28 @@ const RecordForm = () => {
       setInterestRate('');
       setTimePeriod('');
       setEmail('');
-      setImageUrl(''); // Reset imageUrl state after adding record
-      setEMI(0); // Reset EMI state after adding record
-      setCurrentRecordId(null); // Reset current record ID after adding/updating record
-      fetchRecords(); // Refresh records after adding/updating record
+      setImageUrl('');
+      setEMI(0);
+      setCurrentRecordId(null);
+      fetchRecords();
     } catch (error) {
       console.error('Error adding/updating record: ', error);
       alert('Error adding/updating record!');
     }
   };
 
-  // Function to handle deletion of a record
   const handleDelete = async (id) => {
     try {
       const recordRef = doc(db, 'records', id);
       await deleteDoc(recordRef);
       alert('Record deleted successfully!');
-      fetchRecords(); // Refresh records after deletion
+      fetchRecords();
     } catch (error) {
       console.error('Error deleting record: ', error);
       alert('Error deleting record!');
     }
   };
 
-  // Function to handle marking an installment as paid
   const handleInstallmentPaid = async (recordId, installmentIndex) => {
     try {
       const recordRef = doc(db, 'records', recordId);
@@ -121,33 +117,30 @@ const RecordForm = () => {
       updatedInstallments[installmentIndex] = true;
 
       await updateDoc(recordRef, { installments: updatedInstallments });
-      fetchRecords(); // Refresh records after updating installment
+      fetchRecords();
     } catch (error) {
       console.error('Error updating installment: ', error);
       alert('Error updating installment!');
     }
   };
 
-  // Function to calculate EMI
   const calculateEMI = () => {
     const principal = parseFloat(totalamount);
-    const rate = parseFloat(interestRate) / (12 * 100); // Monthly interest rate
-    const time = parseInt(timePeriod); // Time period in months
+    const rate = parseFloat(interestRate) / (12 * 100);
+    const time = parseInt(timePeriod);
 
     if (principal > 0 && rate > 0 && time > 0) {
       const emi = (principal * rate * Math.pow(1 + rate, time)) / (Math.pow(1 + rate, time) - 1);
-      setEMI(emi.toFixed(2)); // Set calculated EMI to state
+      setEMI(emi.toFixed(2));
     } else {
-      setEMI(0); // Reset EMI to 0 if any input is invalid
+      setEMI(0);
     }
   };
 
-  // Call calculateEMI whenever totalamount, interestRate, or timePeriod changes
   useEffect(() => {
     calculateEMI();
   }, [totalamount, interestRate, timePeriod]);
 
-  // Function to handle editing a record
   const handleEdit = (record) => {
     setName(record.name);
     setVehicleName(record.vehicleName);
@@ -161,76 +154,156 @@ const RecordForm = () => {
   };
 
   return (
-    <div>
-      <h2>{currentRecordId ? 'Update Record' : 'Add Record'}</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Name:
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-        </label>
-        <br />
-        <label>
-          Vehicle Name:
-          <input type="text" value={vehicleName} onChange={(e) => setVehicleName(e.target.value)} required />
-        </label>
-        <br />
-        <label>
-          Total Amount:
-          <input type="number" value={totalamount} onChange={(e) => setTotalamount(e.target.value)} required />
-        </label>
-        <br />
-        <label>
-          Interest Rate (%):
-          <input type="number" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} required />
-        </label>
-        <br />
-        <label>
-          Time Period (months):
-          <input type="number" value={timePeriod} onChange={(e) => setTimePeriod(e.target.value)} required />
-        </label>
-        <br />
-        <label>
-          Email:
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </label>
-        <br />
-        <label>
-          Image URL:
-          <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-        </label>
-        <br />
-        <button type="submit">{currentRecordId ? 'Update Record' : 'Add Record'}</button>
-      </form>
+    <Container>
+      <h2 className="mt-5 mb-4">{currentRecordId ? 'Update Record' : 'Add Record'}</h2>
+      <Form onSubmit={handleSubmit}>
+        <Row className="mb-3">
+          <Col md={6}>
+            <Form.Group controlId="name">
+              <Form.Label>Name:</Form.Label>
+              <Form.Control
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="vehicleName">
+              <Form.Label>Vehicle Name:</Form.Label>
+              <Form.Control
+                type="text"
+                value={vehicleName}
+                onChange={(e) => setVehicleName(e.target.value)}
+                required
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="mb-3">
+          <Col md={6}>
+            <Form.Group controlId="totalamount">
+              <Form.Label>Total Amount:</Form.Label>
+              <Form.Control
+                type="number"
+                value={totalamount}
+                onChange={(e) => setTotalamount(e.target.value)}
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="interestRate">
+              <Form.Label>Interest Rate (%):</Form.Label>
+              <Form.Control
+                type="number"
+                value={interestRate}
+                onChange={(e) => setInterestRate(e.target.value)}
+                required
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="mb-3">
+          <Col md={6}>
+            <Form.Group controlId="timePeriod">
+              <Form.Label>Time Period (months):</Form.Label>
+              <Form.Control
+                type="number"
+                value={timePeriod}
+                onChange={(e) => setTimePeriod(e.target.value)}
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="email">
+              <Form.Label>Email:</Form.Label>
+              <Form.Control
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="mb-3">
+          <Col md={12}>
+            <Form.Group controlId="imageUrl">
+              <Form.Label>Image URL:</Form.Label>
+              <Form.Control
+                type="text"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+        <Button type="submit" variant="primary">
+          {currentRecordId ? 'Update Record' : 'Add Record'}
+        </Button>
+      </Form>
 
-      <h2>Records</h2>
-      <ul>
+      <h2 className="mt-5 mb-4">Records</h2>
+      <Row>
         {records.map(record => (
-          <li key={record.id}>
-            <p><strong>Name:</strong> {record.name}</p>
-            <p><strong>Vehicle Name:</strong> {record.vehicleName}</p>
-            <p><strong>Total Amount:</strong> {record.totalamount}</p>
-            {record.imageUrl && <img src={record.imageUrl} alt={record.name} style={{ width: '100px', height: '100px' }} />}
-            <p><strong>Installments:</strong></p>
-            <div style={{ display: 'flex', gap: '5px' }}>
-              {record.installments && record.installments.map((paid, index) => (
-                <button
-                  key={index}
-                  style={{ width: '20px', height: '20px', backgroundColor: paid ? 'green' : 'red' }}
-                  onClick={() => handleInstallmentPaid(record.id, index)}
-                  
-                  disabled={paid}
+          <Col key={record.id} md={4} className="mb-4">
+            <Card style={{ height: '100%' }}>
+              {record.imageUrl && (
+                <Card.Img variant="top" src={record.imageUrl} alt={record.name} />
+              )}
+              <Card.Body>
+                <Card.Title>{record.name}</Card.Title>
+                <Card.Text>
+                  <strong>Vehicle Name:</strong> {record.vehicleName}
+                </Card.Text>
+                <Card.Text>
+                  <strong>Total Amount:</strong> {record.totalamount}
+                </Card.Text>
+                <Card.Text>
+                  <strong>Installments:</strong>
+                </Card.Text>
+                <div className="d-flex flex-wrap">
+                  {record.installments && record.installments.map((paid, index) => (
+                    <Button
+                      key={index}
+                      variant={paid ? 'success' : 'secondary'}
+                      size="sm"
+                      className="m-1"
+                      onClick={() => handleInstallmentPaid(record.id, index)}
+                      disabled={paid}
+                    >
+                      {paid ? '✓' : ' '}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  variant="warning"
+                  size="sm"
+                  className="mt-2 me-2"
+                  onClick={() => handleEdit(record)}
                 >
-                  {paid ? '✓' : ' '}
-                </button>
-              ))}
-            </div>
-            <button onClick={() => handleEdit(record)}>Edit</button>
-            <button onClick={() => handleDelete(record.id)}>Delete</button>
-            <Link to={`/info/${record.id}`}>Info</Link>
-          </li>
+                  Edit
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  className="mt-2 me-2"
+                  onClick={() => handleDelete(record.id)}
+                >
+                  Delete
+                </Button>
+                <Link to={`/info/${record.id}`} className="btn btn-info btn-sm mt-2">
+                  Info
+                </Link>
+              </Card.Body>
+            </Card>
+          </Col>
         ))}
-      </ul>
-    </div>
+      </Row>
+    </Container>
   );
 };
 

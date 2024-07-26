@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { auth } from "../config/firebase-config.js";
 import { toast } from "react-toastify";
 import SignInwithGoogle from "./signInWIthGoogle";
+import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -43,41 +44,47 @@ function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Login</h3>
+    <Container className="mt-5">
+      <Row className="justify-content-center">
+        <Col md={6}>
+          <Form onSubmit={handleSubmit}>
+            <h3 className="text-center mb-4">Login</h3>
 
-      <div className="mb-3">
-        <label>Email address</label>
-        <input
-          type="email"
-          className="form-control"
-          placeholder="Enter email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
+            <Form.Group controlId="formBasicEmail">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </Form.Group>
 
-      <div className="mb-3">
-        <label>Password</label>
-        <input
-          type="password"
-          className="form-control"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </Form.Group>
 
-      <div className="d-grid">
-        <button type="submit" className="btn btn-primary">
-          Submit
-        </button>
-      </div>
-      <p className="forgot-password text-right">
-        New user <a href="/register">Register Here</a>
-      </p>
-      <SignInwithGoogle />
-    </form>
+            <Button variant="primary" type="submit" className="w-100 mt-3">
+              Submit
+            </Button>
+
+            <p className="text-center mt-3">
+              New user <a href="/register">Register Here</a>
+            </p>
+
+            <SignInwithGoogle />
+          </Form>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
