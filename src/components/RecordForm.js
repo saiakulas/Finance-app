@@ -3,7 +3,7 @@ import { collection, onSnapshot, addDoc, query, where, deleteDoc, doc, updateDoc
 import { db, auth } from '../config/firebase-config.js';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiLogOut, FiEdit2, FiTrash2, FiInfo, FiPlus, FiGrid, FiActivity, FiDollarSign, FiCalendar, FiPercent } from 'react-icons/fi';
+import { FiLogOut, FiEdit2, FiTrash2, FiInfo, FiPlus, FiGrid, FiActivity, FiCalendar, FiPercent } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
 const RecordForm = () => {
@@ -74,7 +74,7 @@ const RecordForm = () => {
         setIsFormOpen(false);
       } else {
         const q = query(recordsCollection, where('email', '==', email));
-        const existingUsers = await onSnapshot(q, (snapshot) => {
+        await onSnapshot(q, (snapshot) => {
           // This is a one-time check usually, but for real-time we should be careful
         });
         // Simplification for now: keep existing logic for addDoc
@@ -142,7 +142,7 @@ const RecordForm = () => {
     }
   };
 
-  const calculateEMI = () => {
+  useEffect(() => {
     const principal = parseFloat(totalamount);
     const rate = parseFloat(interestRate) / (12 * 100);
     const time = parseInt(timePeriod);
@@ -153,10 +153,6 @@ const RecordForm = () => {
     } else {
       setEMI(0);
     }
-  };
-
-  useEffect(() => {
-    calculateEMI();
   }, [totalamount, interestRate, timePeriod]);
 
   const handleEdit = (record) => {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../config/firebase-config';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { FiArrowLeft, FiPrinter, FiShield, FiTrendingUp, FiCheckCircle, FiInfo, FiActivity } from 'react-icons/fi';
 
@@ -133,8 +133,8 @@ const InfoPage = () => {
                         <div
                           key={i}
                           className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black transition-all ${paid
-                              ? 'bg-green-500/10 text-green-400 border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.05)]'
-                              : 'bg-white/5 text-white/20 border border-white/5'
+                            ? 'bg-green-500/10 text-green-400 border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.05)]'
+                            : 'bg-white/5 text-white/20 border border-white/5'
                             }`}
                         >
                           {paid ? '✓' : i + 1}
@@ -189,7 +189,7 @@ const InfoPage = () => {
 
             <div className="glass-card p-10 rounded-[3rem]">
               <h4 className="text-lg font-bold mb-6 flex items-center gap-2">
-                <Fi_Info className="text-indigo-400" /> Digital Ledger
+                <FiInfoIcon className="text-indigo-400" /> Digital Ledger
               </h4>
               <div className="space-y-6">
                 <div className="p-5 bg-white/5 rounded-2xl border border-white/5">
@@ -211,7 +211,7 @@ const InfoPage = () => {
   );
 };
 
-// Fixed the naming for FiInfo (it was Fi_Info in one place in my diff plan potentially)
-const Fi_Info = FiInfo;
+// Fixed the naming for FiInfo
+const FiInfoIcon = FiInfo;
 
 export default InfoPage;
