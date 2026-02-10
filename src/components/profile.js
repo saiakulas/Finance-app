@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { auth, db } from "../config/firebase-config.js";
 import { doc, getDoc, collection, query, where, onSnapshot } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { FiLogOut, FiActivity, FiCreditCard, FiAward, FiArrowRight, FiCheckCircle, FiClock, FiCalendar } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
